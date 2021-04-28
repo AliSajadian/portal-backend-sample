@@ -19,7 +19,7 @@ urlpatterns = [
     path('', include('accounts.urls')),
     path('', include('baseInfo.urls')),
     path('', include('doctor_appointments.urls')),
-    # path('', include('library.urls'))
+    path('', include('library.urls')),
     # path('', include('meeting_request.urls')),
     path('', include('resturaunt.urls')),
     path('', include('surveys.urls')),
