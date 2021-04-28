@@ -2,8 +2,7 @@ from django.urls import path, include
 from knox import views as knox_views
 
 from .views import PasswordAPIView, RegisterAPI, LoginAPI, LoginExAPI, UserAPI, UserCreateAPI, UserDeleteAPI, \
-    EmployeeImageDownloadListAPIView, UserGroupsAPI, GroupPermissionsAPI, UserPermissionsAPI  
-                  #FileDownloadListAPIView,
+    EmployeeImageDownloadListAPIView, UserGroupsAPI, GroupPermissionsAPI, UserPermissionsAPI, FileDownloadListAPIView
        
 
 urlpatterns = [
@@ -15,7 +14,7 @@ urlpatterns = [
     path("api/auth/change_password/", PasswordAPIView.as_view(), name="change_password"),
     
     path('api/auth/logout', knox_views.LogoutView.as_view(), name='knox_logout'),
-    # path("api/auth/filesdownload/<int:id>/", FileDownloadListAPIView.as_view(), name="filesdownload/<id>/"),
+    path("api/auth/filesdownload/<int:id>/", FileDownloadListAPIView.as_view(), name="filesdownload/<id>/"),
     path("api/auth/employeeimagedownload/<int:id>/", EmployeeImageDownloadListAPIView.as_view(), name="employeeimagedownload/<id>/"),
 
     path('api/auth/user', UserAPI.as_view()),
