@@ -22,5 +22,5 @@ urlpatterns = [
     # path('', include('library.urls'))
     # path('', include('meeting_request.urls')),
     path('', include('resturaunt.urls')),
-    # path('', include('surveys.urls')),
+    path('', include('surveys.urls')),
    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
