@@ -1,20 +1,18 @@
-from rest_framework import generics, permissions, viewsets, status
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from wsgiref.util import FileWrapper
-from datetime import date, datetime
-from django.db.models import Count, Value, CharField
 from knox.models import AuthToken
 import re
 
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import User, Group
 from .serializers import PasswordSerializer, LoginSerializer, UserSerializer, UserGroupSerializer, GroupPermissionSerializer, \
     UserPermissionSerializer, RegisterSerializer 
 from baseInfo.models import Employee
-# from doctor_appointments.models import DocPatientsFiles, Doctors
+from doctor_appointments.models import DocPatientsFiles, Doctors
 from .services import get_LDAP_user
 
 
@@ -268,7 +266,7 @@ class LoginAPI(generics.GenericAPIView):
             "user": UserSerializer(user, context=self.get_serializer_context()).data, 
             "token": token,
             "employee": Employee.objects.filter(user = user.id).values('id', 'first_name', 'last_name', 'picture') if Employee.objects != None else None,
-            "isDoctor": False, #Doctors.objects.filter(employee_id=employee_id).count() > 0,
+            "isDoctor": Doctors.objects.filter(employee_id=employee_id).count() > 0,
             "permissions": usergrouppermissions,
             "groups": usergroups,
         })         
@@ -310,7 +308,7 @@ class LoginAPI(generics.GenericAPIView):
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "token": token,
             "employee": Employee.objects.filter(user = user.id).values('id', 'first_name', 'last_name', 'picture') if Employee.objects != None else None,
-            "isDoctor": False, #Doctors.objects.filter(employee_id=employee_id).count() > 0,
+            "isDoctor": Doctors.objects.filter(employee_id=employee_id).count() > 0,
             "permissions": usergrouppermissions,
             "groups": usergroups,
         })
@@ -397,18 +395,18 @@ class UserAPI(generics.RetrieveAPIView):
   def get_object(self):
     return self.request.user
 
-# class FileDownloadListAPIView(generics.ListAPIView):
-#     permission_classes = [
-#         permissions.AllowAny]
+class FileDownloadListAPIView(generics.ListAPIView):
+    permission_classes = [
+        permissions.AllowAny]
 
-#     def get(self, request, id, format=None):
-#         queryset = DocPatientsFiles.objects.get(id=id)
-#         file_handle = 'files//' +  str(queryset.file)
-#         # 
-#         document = open(file_handle, 'rb')
-#         response = HttpResponse(FileWrapper(document), content_type = 'application/pdf')
-#         response['Content-Disposition'] = 'attachment; filename="%s"' % str(queryset.file).find('/')
-#         return response       
+    def get(self, request, id, format=None):
+        queryset = DocPatientsFiles.objects.get(id=id)
+        file_handle = 'files//' +  str(queryset.file)
+        # 
+        document = open(file_handle, 'rb')
+        response = HttpResponse(FileWrapper(document), content_type = 'application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="%s"' % str(queryset.file).find('/')
+        return response       
 
 class EmployeeImageDownloadListAPIView(generics.ListAPIView):
     permission_classes = [
