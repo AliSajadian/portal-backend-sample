@@ -3,10 +3,15 @@ from baseInfo.models import Employee
 from datetime import datetime
 
 
+class Meeting_Room(models.Model):
+    name = models.CharField(max_length=100)
+    objects = models.Manager()
+
+    class Meta:
+        db_table = 'tbl_meeting_room'
 
 class Meeting_Cater_Type(models.Model):
     name = models.CharField(max_length=100)
-
     objects = models.Manager()  
 
     class Meta:
@@ -23,13 +28,13 @@ class Meeting_Request(models.Model):
     date = models.DateField(default=datetime.now, blank=True)
     start_hour= models.TimeField(auto_now=False, auto_now_add=False)
     end_hour = models.TimeField(auto_now=False, auto_now_add=False)
-    personel_no = models.PositiveSmallIntegerField()
-    employee = models.ForeignKey(Employee, 
+    requester = models.ForeignKey(Employee, 
         related_name="employee_meeting_request", on_delete=models.CASCADE)
-    cater_type = models.ForeignKey(Meeting_Cater_Type, 
-        related_name="meeting_request_cater_type", on_delete=models.CASCADE)
-    necessary_equipment = models.ForeignKey(Meeting_Necessary_Equipment, 
-        related_name="meeting_request_necessary_equipment", on_delete=models.CASCADE)
+    meeting_room = models.ForeignKey(Meeting_Room, 
+        related_name="meeting_room_meeting_request", on_delete=models.CASCADE)
+    cater_types = models.ManyToManyField(Meeting_Cater_Type, related_name='cater_types')
+    necessary_equipments = models.ManyToManyField(Meeting_Necessary_Equipment, related_name='necessary_equipments')
+
     objects = models.Manager()  
 
     class Meta:
