@@ -2,11 +2,22 @@ from rest_framework.response import Response
 from rest_framework import viewsets, permissions
 from django.db.models import F
 
-from meeting_request.models import Meeting_Cater_Type, Meeting_Necessary_Equipment, Meeting_Request
-from .serializers import Meeting_Cater_TypeSerializer, Meeting_Necessary_EquipmentSerializer, Meeting_RequestSerializer
+from .models import Meeting_Room, Meeting_Request, Meeting_Cater_Type, Meeting_Equipment
+from .serializers import Meeting_RoomSerializer, Meeting_RequestSerializer, \
+    Meeting_Cater_TypeSerializer, Meeting_EquipmentSerializer
 
 
 
+class Meeting_RoomViewSet(viewsets.ModelViewSet):
+    queryset = Meeting_Room.objects.all()
+
+    permission_classes = [
+        permissions.IsAuthenticated
+    ] 
+
+    serializer_class = Meeting_RoomSerializer
+    
+    
 class Meeting_Cater_TypeViewSet(viewsets.ModelViewSet):
     queryset = Meeting_Cater_Type.objects.all()
 
@@ -17,14 +28,14 @@ class Meeting_Cater_TypeViewSet(viewsets.ModelViewSet):
     serializer_class = Meeting_Cater_TypeSerializer
 
 
-class Meeting_Necessary_EquipmentViewSet(viewsets.ModelViewSet):
-    queryset = Meeting_Necessary_Equipment.objects.all()
+class Meeting_EquipmentViewSet(viewsets.ModelViewSet):
+    queryset = Meeting_Equipment.objects.all()
 
     permission_classes = [
         permissions.IsAuthenticated
     ] 
 
-    serializer_class = Meeting_Necessary_EquipmentSerializer
+    serializer_class = Meeting_EquipmentSerializer
 
 
 class Meeting_RequestViewSet(viewsets.ModelViewSet):
