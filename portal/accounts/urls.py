@@ -21,8 +21,8 @@ urlpatterns = [
     path('api/auth/userex', UserCreateAPI.as_view()),
     path('api/auth/userex/<int:pk>', UserDeleteAPI.as_view(), name="userex/<pk>/"),
     path('api/auth/usergroups/<int:pk>', UserGroupsAPI.as_view(), name="usergroups/<pk>/"),
-    path('api/auth/grouppermissions/<int:pk>', GroupPermissionsAPI.as_view(), name="usergroups/<pk>/"),
-    path('api/auth/userpermissions/<int:pk>', UserPermissionsAPI.as_view(), name="usergroups/<pk>/"),
+    path('api/auth/grouppermissions/<int:pk>', GroupPermissionsAPI.as_view(), name="grouppermissions/<pk>/"),
+    path('api/auth/userpermissions/<int:pk>', UserPermissionsAPI.as_view(), name="userpermissions/<pk>/"),
 ]
 
 # urlpatterns.extend(router)  , name="guestmealdays/(?P<selectedDate>[\w\-]+)/$"

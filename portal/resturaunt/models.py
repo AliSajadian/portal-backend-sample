@@ -46,6 +46,7 @@ class Resturaunt_Guest_Day_Meal(models.Model):
     resturaunt_day_meals=models.ManyToManyField(Resturaunt_Day_Meal, through='Resturaunt_Guest_Day_Meal_junction')
     # date = models.DateField(default=datetime.now, blank=True)
     description=models.CharField(max_length=500, blank=True, null=True)
+    objects = models.Manager()  
 
     class Meta:
         db_table = "tbl_resturaunt_guest_day_meal"  
@@ -56,6 +57,7 @@ class Resturaunt_Guest_Day_Meal_Junction(models.Model):
     resturaunt_guest_day_meal = models.ForeignKey(Resturaunt_Guest_Day_Meal, 
         related_name="ResturauntGuestDayMeal_ResturauntGuestDayMealJunction", on_delete=models.CASCADE)
     qty = models.PositiveSmallIntegerField()
+    objects = models.Manager()  
 
     class Meta:
         unique_together = [['resturaunt_day_meal', 'resturaunt_guest_day_meal']]

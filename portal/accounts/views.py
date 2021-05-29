@@ -137,7 +137,7 @@ class UserGroupsAPI(generics.RetrieveAPIView):
         except Exception as e:
             return Response(
                 {
-                    "Failure": 'user not fount!' 
+                    "Failure": 'user not found!' 
                 },
                 status=status.HTTP_400_BAD_REQUEST
             ) 
