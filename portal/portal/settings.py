@@ -25,8 +25,8 @@ SECRET_KEY = 'jn7@^yaj(m33%&4)r(+b%k*g(f)2bpb3a2ur_*f%dlv&yborj8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['172,20,22,184']
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.43.108', '172,20,22,184']
+# ALLOWED_HOSTS = ['172,20,22,184'], '192.168.43.108', '172,20,22,184' '172.20.20.45', '127.0.0.1', 'localhost'
+ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
@@ -110,7 +110,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'sql_server.pyodbc',
         'NAME': 'DbAsftPortal',
-        'HOST': 'localhost',
+        'HOST': '172.20.20.45',
         'USER': 'sa',
         'PASSWORD': 'aSj#14776$10036%mM&',
 
