@@ -12,9 +12,9 @@ from .serializers import CompanySerializer, DepartmentSerializer, ProjectSeriali
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
 
-    # permission_classes = [
-    #     permissions.IsAuthenticated
-    # ] 
+    permission_classes = [
+        permissions.IsAuthenticated
+    ] 
 
     serializer_class = CompanySerializer
 

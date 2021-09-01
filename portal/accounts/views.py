@@ -3,14 +3,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
 from django.http import HttpResponse
-from django.contrib.auth.models import User
 from wsgiref.util import FileWrapper
 from knox.models import AuthToken
 import re
 
 from django.contrib.auth.models import User, Group
 from .serializers import PasswordSerializer, LoginSerializer, UserSerializer, UserGroupSerializer, GroupPermissionSerializer, \
-    UserPermissionSerializer, RegisterSerializer 
+    UserPermissionSerializer, RegisterSerializer, UserExSerializer
 from baseInfo.models import Employee
 from doctor_appointments.models import DocPatientsFiles, Doctors
 from .services import get_LDAP_user
@@ -58,21 +57,22 @@ class UserCreateAPI(generics.GenericAPIView):
     def post(self,request):
         try:
             user = User.objects.create(
-                            password = request.data["password"],
+                            password = 'pbkdf2_sha256$180000$Nsew4fOfrQ0C$4moGTA3Uz40WflCIqb7efNP/9/rlTzBd3wf1msgAIQI=',
                             username = request.data["username"],
                             first_name = request.data["first_name"],
                             last_name = request.data["last_name"],
-                            email = request.data["email"],
+                            email = '',
                             is_active = request.data["is_active"],
                             )
             user.save()
-            # user.set_password(request.data["password"])
+            user.set_password(request.data["password"])
 
             employee = Employee.objects.create(
                             first_name = request.data["first_name"],
                             last_name = request.data["last_name"],
                             phone = None,
-                            email = request.data["email"],
+                            personel_code = request.data["personel_code"],
+                            email = '',
                             department = None,
                             jobPosition = None, 
                             project = None, 
@@ -81,16 +81,13 @@ class UserCreateAPI(generics.GenericAPIView):
                             gender = 1,
                             )       
             employee.save()
-            return Response(
-                {
-                    "user and employee created successfully" 
-                },
-            )                              
+
+            return Response(UserExSerializer(user, context=self.get_serializer_context()).data)             
         except Exception as e:
             return Response(
                 {
-                    "Failure": e
-                    # 'user and employee creating failed!' 
+                    # "Failure": e
+                    'user and employee creating failed!' 
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )                                              
@@ -226,93 +223,102 @@ class RegisterAPI(generics.GenericAPIView):
 class LoginAPI(generics.GenericAPIView):
     serializer_class = LoginSerializer
     def post(self, request, *args, **kwargs):
-      data = request.data
-      username = data["username"]
-      password = data["password"]
+        data = request.data
+        username = data["username"]
+        password = data["password"]
 
-      if(not '_' in username):
-        username_ad =  get_LDAP_user(username, password)
-        user = User.objects.filter(username=username_ad)[0] if(len(User.objects.filter(username=username_ad))>0) else ''
-        _, token = AuthToken.objects.create(user)
+        if(not '_' in username):
+            try:
+                username_ad =  get_LDAP_user(username, password)
+                user = User.objects.filter(username=username_ad)[0] if(len(User.objects.filter(username=username_ad))>0) else ''
+                _, token = AuthToken.objects.create(user)
 
-        employee_id = Employee.objects.filter(user = user.id).values('id')[0]['id'] if (Employee.objects != None and Employee.objects.filter(user = user.id).count() > 0) else 0
+                employee_id = Employee.objects.filter(user = user.id).values('id')[0]['id'] if (Employee.objects != None and Employee.objects.filter(user = user.id).count() > 0) else 0
+            except Exception as e:
+                return Response({'error': 1})
 
-# ---------------------------------------------------------------
-        emp = Employee.objects.get(user = user.id)
-        if(emp == None or not re.search(re.compile('^[آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهیئ]+$'), emp.first_name) or 
-            not re.search(re.compile('^[آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهیئ]+$'), emp.last_name) or 
-            emp.personel_code == None or emp.department == None or emp.jobPosition == None):
-            # raise Exception("اطلاعات پرسنلی ناقص میباشد، لطفا با راهبر سامانه تماس بگیرید.")
-            return Response({'error': "اطلاعات پرسنلی ناقص میباشد، لطفا با راهبر سامانه تماس بگیرید."})
-# ---------------------------------------------------------------
-        usergrouppermissions = []
-        usergroups = []
-        for group in user.groups.all():
-            if(group not in usergroups):
-                    usergroups.append(group.id)
-            for permission in group.permissions.all():
+        # ---------------------------------------------------------------
+            emp = Employee.objects.get(user = user.id)
+            if(emp == None or not re.search(re.compile('^[آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهیئ ي ی]+$'), emp.first_name) or 
+                not re.search(re.compile('^[آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهیئ ي ی]+$'), emp.last_name) or 
+                emp.personel_code == None or (emp.department == None and emp.project == None) or emp.jobPosition == None):
+                # raise Exception("اطلاعات پرسنلی ناقص میباشد، لطفا با راهبر سامانه تماس بگیرید.")
+                return Response({'error': 2})
+        # ---------------------------------------------------------------
+            usergrouppermissions = []
+            usergroups = []
+            for group in user.groups.all():
+                if(group not in usergroups):
+                        usergroups.append(group.id)
+                for permission in group.permissions.all():
+                    if(permission not in usergrouppermissions):
+                        usergrouppermissions.append(permission.id)
+            
+            for permission in user.user_permissions.all():
                 if(permission not in usergrouppermissions):
                     usergrouppermissions.append(permission.id)
-        
-        for permission in user.user_permissions.all():
-            if(permission not in usergrouppermissions):
-                usergrouppermissions.append(permission.id)
 
-        if(usergroups == None or usergrouppermissions == None):
-            return Response({'error': "اطلاعات پرسنلی ناقص میباشد، لطفا با راهبر سامانه تماس بگیرید."})
-# ---------------------------------------------------------------
+            if((1 not in usergroups) and (2 not in usergroups) and (usergroups == None or usergroups == [] or usergrouppermissions == None or usergrouppermissions == [])):
+                # "دسترسی به سیستم به شما اختصاص داده نشده است، لطفا با راهبر سامانه تماس بگیرید."
+                return Response({'error': 3})
+        # ---------------------------------------------------------------
+            return Response({
+                "error": 0,
+                "user": UserSerializer(user, context=self.get_serializer_context()).data, 
+                "token": token,
+                "employee": Employee.objects.filter(user = user.id).values('id', 'first_name', 'last_name', 'picture') if Employee.objects != None else None,
+                "isDoctor": Doctors.objects.filter(employee_id=employee_id).count() > 0,
+                "permissions": usergrouppermissions,
+                "groups": usergroups,
+            })         
+        else:
+            try:
+                serializer = self.get_serializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                user = serializer.validated_data
+                _, token = AuthToken.objects.create(user)
+            except Exception as e:
+                return Response({'error': 1})
+            # _user = UserSerializer(user, context=self.get_serializer_context()).data
 
-        return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data, 
-            "token": token,
-            "employee": Employee.objects.filter(user = user.id).values('id', 'first_name', 'last_name', 'picture') if Employee.objects != None else None,
-            "isDoctor": Doctors.objects.filter(employee_id=employee_id).count() > 0,
-            "permissions": usergrouppermissions,
-            "groups": usergroups,
-        })         
-      else:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data
-        _, token = AuthToken.objects.create(user)
-        # _user = UserSerializer(user, context=self.get_serializer_context()).data
-
-        employee_id = Employee.objects.filter(user = user.id).values('id')[0]['id'] if (Employee.objects != None and Employee.objects.filter(user = user.id).count() > 0) else 0
-
-# ---------------------------------------------------------------
-        emp = Employee.objects.get(user = user.id)
-        if(emp == None or not re.search(re.compile('^[آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهیئ]+$'), emp.first_name) or 
-            not re.search(re.compile('^[آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهیئ]+$'), emp.last_name) or 
-            emp.personel_code == None or emp.department == None or emp.jobPosition == None):
-            # raise Exception("اطلاعات پرسنلی ناقص میباشد، لطفا با راهبر سامانه تماس بگیرید.")
-            return Response({'error': "اطلاعات پرسنلی ناقص میباشد، لطفا با راهبر سامانه تماس بگیرید."})
-# ---------------------------------------------------------------
-        usergrouppermissions = []
-        usergroups = []
-        for group in user.groups.all():
-            if(group not in usergroups):
-                    usergroups.append(group.id)
-            for permission in group.permissions.all():
+            employee_id = Employee.objects.filter(user = user.id).values('id')[0]['id'] if (Employee.objects != None and Employee.objects.filter(user = user.id).count() > 0) else 0
+            if(employee_id == 0):
+                emp = Employee.objects.create(first_name=user.first_name, last_name=user.last_name, email=user.email, user_id=user.id, gender=False) 
+                employee_id = emp.id
+        # ---------------------------------------------------------------
+            emp = Employee.objects.get(user = user.id)
+            if(emp == None or not re.search(re.compile('^[آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهیئ ي ی ]+$'), emp.first_name) or 
+                not re.search(re.compile('^[آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهیئ ي ی ]+$'), emp.last_name) or 
+                emp.personel_code == None or (emp.department == None and emp.project == None) or emp.jobPosition == None):
+                # raise Exception("اطلاعات پرسنلی ناقص میباشد، لطفا با راهبر سامانه تماس بگیرید.")
+                return Response({'error': 2})
+        # ---------------------------------------------------------------
+            usergrouppermissions = []
+            usergroups = []
+            for group in user.groups.all():
+                if(group not in usergroups):
+                        usergroups.append(group.id)
+                for permission in group.permissions.all():
+                    if(permission not in usergrouppermissions):
+                        usergrouppermissions.append(permission.id)
+            
+            for permission in user.user_permissions.all():
                 if(permission not in usergrouppermissions):
                     usergrouppermissions.append(permission.id)
-        
-        for permission in user.user_permissions.all():
-            if(permission not in usergrouppermissions):
-                usergrouppermissions.append(permission.id)
 
-        if(usergroups == None or usergrouppermissions == None):
-            return Response({'error': "اطلاعات پرسنلی ناقص میباشد، لطفا با راهبر سامانه تماس بگیرید."})
-# ---------------------------------------------------------------
-
-        return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "token": token,
-            "employee": Employee.objects.filter(user = user.id).values('id', 'first_name', 'last_name', 'picture') if Employee.objects != None else None,
-            "isDoctor": Doctors.objects.filter(employee_id=employee_id).count() > 0,
-            "permissions": usergrouppermissions,
-            "groups": usergroups,
-        })
-
+            if((1 not in usergroups) and (2 not in usergroups) and (usergroups == None or usergroups == [] or usergrouppermissions == None or usergrouppermissions == [])):
+                # "دسترسی به سیستم به شما اختصاص داده نشده است، لطفا با راهبر سامانه تماس بگیرید."
+                return Response({'error': 3})
+        # ---------------------------------------------------------------
+            return Response({
+                "error": 0,
+                "user": UserSerializer(user, context=self.get_serializer_context()).data,
+                "token": token,
+                "employee": Employee.objects.filter(user = user.id).values('id', 'first_name', 'last_name', 'picture') if Employee.objects != None else None,
+                "isDoctor": Doctors.objects.filter(employee_id=employee_id).count() > 0,
+                "permissions": usergrouppermissions,
+                "groups": usergroups,
+            })
 # /////////////////////////////////////////////////////////////////////////////////////////////
 
 class LoginExAPI(generics.GenericAPIView):

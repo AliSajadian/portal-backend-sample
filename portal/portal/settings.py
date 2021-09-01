@@ -26,7 +26,7 @@ SECRET_KEY = 'jn7@^yaj(m33%&4)r(+b%k*g(f)2bpb3a2ur_*f%dlv&yborj8'
 DEBUG = True
 
 # ALLOWED_HOSTS = ['172,20,22,184'], '192.168.43.108', '172,20,22,184' '172.20.20.45', '127.0.0.1', 'localhost'
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', 'portalapi.asft.co']
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition

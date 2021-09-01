@@ -76,17 +76,34 @@ def sync_LDAP_user(entity):
 
         is_active = 0 if(entity['attributes']['userAccountControl'] == 66050 or entity['attributes']['userAccountControl'] == 514) else 1
         try:
+            image_name = '/files/employee_pix/{0}.jpg'.format(username)
             # Update the user -- this allows for name changes etc, using username as the key.
-            user, user_created = User.objects.update_or_create(username=username, defaults={'email': email, 'first_name': first_name, 'last_name': last_name, 'is_active': is_active})
+            user, user_created = User.objects.update_or_create(username=username, 
+                defaults={'email': email, 'first_name': first_name, 'last_name': last_name, 'is_active': is_active})
 
             if user_created:
                 # Set an unusable password -- django-auth-ldap handles this, anyway.   'user_id':user.id, 
                 user.set_unusable_password()
                 user.save()
-                # first_name__exact=first_name, last_name__exact=last_name
-                employees = Employee.objects.filter(user_id__exact=user.id, picture__exact=thumbnailPhoto)
-                if(len(employees) == 0):
-                    Employee.objects.create(first_name=first_name, last_name=last_name, email=email, user_id=user.id, gender=False, picture__exact=thumbnailPhoto)
+                # first_name__exact=first_name, last_name__exact=last_name      , picture=thumbnailPhoto
+                
+            employees = Employee.objects.filter(user_id__exact=user.id)
+            if(len(employees) == 0):
+                employee = Employee.objects.create(first_name=first_name, last_name=last_name, email=email, user_id=user.id, gender=False)     
+                if(len(thumbnailPhoto)>0):
+                    buffer = io.BytesIO()
+                    buffer.write(thumbnailPhoto)
+                    image_file = InMemoryUploadedFile(buffer, None, '{0}.jpg'.format(username), 'image/jpg', buffer.getbuffer().nbytes, None)
+                    employee.picture.save(image_name, image_file)   
+            else:
+                if(len(employees) > 1):
+                    employees[1].delete()
+                if((employees[0].picture == None or employees[0].picture == []) and len(thumbnailPhoto)>0):
+                    buffer = io.BytesIO()
+                    buffer.write(thumbnailPhoto)
+                    image_file = InMemoryUploadedFile(buffer, None, '{0}.jpg'.format(username), 'image/jpg', buffer.getbuffer().nbytes, None)
+                    employees[0].picture.save(image_name, image_file)   
+
         except Exception as e:
             return 'sync exception'
 
@@ -102,7 +119,7 @@ def sync_LDAP_users(username, password):
 
         base = '''dc=asft,dc=co'''
         criteria = '''(objectCategory=user)'''
-        attributes = ['sAMAccountName', 'givenName', 'sn', 'mail', 'userAccountControl']
+        attributes = ['sAMAccountName', 'givenName', 'sn', 'mail', 'userAccountControl', 'thumbnailPhoto']
 
         conn.search(base, criteria, attributes=attributes)
         entries = conn.entries
@@ -114,8 +131,10 @@ def sync_LDAP_users(username, password):
                 first_name = e['givenName']
                 last_name = e['sn']
                 email = e['mail']
+                thumbnailPhoto = e['thumbnailPhoto']
                 is_active = 0 if(e['userAccountControl'] == 66050 or e['userAccountControl'] == 514) else 1
                 try:
+                    image_name = '/employee_pix/{0}.jpg'.format(username)
                     # Update the user -- this allows for name changes etc, using username as the key.
                     user, user_created = User.objects.update_or_create(username=username, defaults={'email': email, 'first_name': first_name, 'last_name': last_name, 'is_active': is_active})
 
@@ -124,9 +143,15 @@ def sync_LDAP_users(username, password):
                         user.set_unusable_password()
                         user.save()
                         # first_name__exact=first_name, last_name__exact=last_name
-                        employees = Employee.objects.filter(user_id__exact=user.id)
-                        if(len(employees) == 0):
-                            Employee.objects.create(first_name=first_name, last_name=last_name, email=email, user_id=user.id, gender=False)
+                    employees = Employee.objects.filter(user_id__exact=user.id)
+                    if(len(employees) == 0):
+                        employee = Employee.objects.create(first_name=first_name, last_name=last_name, email=email, user_id=user.id, gender=False)     
+                        if(len(thumbnailPhoto)>0):
+                            buffer = io.BytesIO()
+                            buffer.write(thumbnailPhoto)
+                            image_file = InMemoryUploadedFile(buffer, None, '{0}.jpg'.format(username), 'image/jpg', buffer.getbuffer().nbytes, None)
+                            employee.picture.save(image_name, image_file)   
+                   
                 except Exception as e:
                     return 'sync exception'
 
@@ -163,21 +188,22 @@ def sync_LDAP_users_Ex(username, password):
 
                 is_active = 0 if(r['attributes']['userAccountControl'] == 66050 or r['attributes']['userAccountControl'] == 514) else 1
                 try:                
+                    image_name = '/employee_pix/{0}.jpg'.format(username)
+                    
                     user, user_created = User.objects.update_or_create(username=username, defaults={'email': email, 'first_name': first_name, 'last_name': last_name, 'is_active': is_active})
                     if user_created:
-                        image_name = '/employee_pix/{0}.jpg'.format(username)
                         # Set an unusable password -- django-auth-ldap handles this, anyway.  'user_id':user.id, 
                         user.set_unusable_password()
                         user.save()
                         # first_name__exact=first_name, last_name__exact=last_name
-                        employees = Employee.objects.filter(user_id__exact=user.id)
-                        if(len(employees) == 0):
-                            employee = Employee.objects.create(first_name=first_name, last_name=last_name, picture=image_name, email=email, user_id=user.id, gender=False)
-                            if(len(thumbnail)>0):
-                                buffer = io.BytesIO()
-                                buffer.write(thumbnail)
-                                image_file = InMemoryUploadedFile(buffer, None, '{0}.jpg'.format(username), 'image/jpg', buffer.getbuffer().nbytes, None)
-                                employee.picture.save(image_name, image_file)   
+                    employees = Employee.objects.filter(user_id__exact=user.id)
+                    if(len(employees) == 0):
+                        employee = Employee.objects.create(first_name=first_name, last_name=last_name, picture=image_name, email=email, user_id=user.id, gender=False)
+                        if(len(thumbnail)>0):
+                            buffer = io.BytesIO()
+                            buffer.write(thumbnail)
+                            image_file = InMemoryUploadedFile(buffer, None, '{0}.jpg'.format(username), 'image/jpg', buffer.getbuffer().nbytes, None)
+                            employee.picture.save(image_name, image_file)   
                 except Exception as e:
                     return 'sync exception'                                
         return 'done successfully'

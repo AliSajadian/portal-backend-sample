@@ -25,7 +25,7 @@ class Company(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=100)
     company = models.ForeignKey(Company, 
-    related_name="Company_Project", on_delete=models.CASCADE, null=True)    
+    related_name="Company_Project",on_delete=models.PROTECT, null=True)    
     objects = models.Manager()  
 
     class Meta:
@@ -35,7 +35,7 @@ class Project(models.Model):
 class Department(models.Model):
     name = models.CharField(max_length=100)
     company = models.ForeignKey(Company, 
-    related_name="Company_Department", on_delete=models.CASCADE, null=True)
+    related_name="Company_Department", on_delete=models.PROTECT, null=True)
     objects = models.Manager()  
 
     class Meta:
@@ -60,13 +60,13 @@ class Employee(models.Model):
     phone = models.CharField(max_length=20, null=True)
     email = models.CharField(max_length=256, blank=True)
     # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.OneToOneField(User, on_delete=models.PROTECT, blank=True, null=True)
     department = models.ForeignKey(Department, 
-        related_name="Department_Employee", on_delete=models.CASCADE, null=True)
+        related_name="Department_Employee", on_delete=models.PROTECT, null=True)
     project = models.ForeignKey(Project, 
-        related_name="Project_Employee", on_delete=models.CASCADE, null=True)
+        related_name="Project_Employee", on_delete=models.PROTECT, null=True)
     jobPosition = models.ForeignKey(JobPosition, 
-        related_name="JobPosition_Employee", on_delete=models.CASCADE, null=True)
+        related_name="JobPosition_Employee", on_delete=models.PROTECT, null=True)
     is_active = models.BooleanField(default=True, null=True)
     objects = models.Manager()  
 

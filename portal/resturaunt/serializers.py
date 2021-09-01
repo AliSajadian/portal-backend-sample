@@ -91,6 +91,11 @@ class Resturaunt_Fish_MealSerializer(serializers.ModelSerializer):
         fields = ('meal_no', 'resturaunt_day_meal', 'employee')   
 # =======================================================
 class Resturaunt_Employee_Day_MealSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resturaunt_Employee_Day_Meal
+        fields = ('id', 'employee', 'resturaunt_day_meal')
+
+class Resturaunt_Employee_Day_MealProSerializer(serializers.ModelSerializer):
     resturaunt_meal = serializers.SlugRelatedField(
         read_only=True,
         slug_field='resturaunt_meal'

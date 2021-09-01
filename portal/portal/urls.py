@@ -15,7 +15,7 @@ from django.conf.urls.static import static
 #     ] + urlpatterns
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
     path('', include('baseInfo.urls')),
     path('', include('doctor_appointments.urls')),

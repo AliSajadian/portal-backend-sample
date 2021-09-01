@@ -39,7 +39,7 @@ class EmployeeCodeSerializer(serializers.ModelSerializer):
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'is_active')
+        fields = ('id', 'username', 'first_name', 'last_name', 'is_active')
 
 class SurveyTypeSerializer(serializers.ModelSerializer):
     class Meta:

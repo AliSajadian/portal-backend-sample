@@ -2,7 +2,7 @@ from django.db import models
 from datetime import datetime, date
 from django.db.models import Count
 
-from baseInfo.models import Department, Employee
+from baseInfo.models import Department, Project, Employee
 
 
 class Resturaunt_Meal(models.Model):
@@ -18,6 +18,8 @@ class Resturaunt_Day_Meal(models.Model):
         related_name="ResturauntMeal_ResturauntDayMeal", on_delete=models.CASCADE)
     date = models.DateField(default=datetime.now, blank=True)
     totalNo = models.IntegerField(null=True)
+    monthID = models.SmallIntegerField(null=True)
+    isActive = models.BooleanField(default=False, null=True)
     objects = models.Manager()  
 
     # def meal_no(self):
@@ -31,9 +33,9 @@ class Resturaunt_Day_Meal(models.Model):
 
 class Resturaunt_Employee_Day_Meal(models.Model):
     resturaunt_day_meal = models.ForeignKey(Resturaunt_Day_Meal, 
-        related_name="ResturauntDayMeal_ResturauntEmployeeDayMeal", on_delete=models.CASCADE)
+        related_name="ResturauntDayMeal_ResturauntEmployeeDayMeal", on_delete=models.PROTECT)
     employee = models.ForeignKey(Employee, 
-        related_name="Employee_ResturauntEmployeeDayMeal", on_delete=models.CASCADE)
+        related_name="Employee_ResturauntEmployeeDayMeal", on_delete=models.PROTECT)
     served = models.BooleanField(default=False)
     objects = models.Manager()  
 
@@ -42,7 +44,9 @@ class Resturaunt_Employee_Day_Meal(models.Model):
 
 class Resturaunt_Guest_Day_Meal(models.Model):
     department = models.ForeignKey(Department, 
-        related_name="Department_ResturaunGuestDayMeal", on_delete=models.CASCADE, null=True)  
+        related_name="Department_ResturaunGuestDayMeal", on_delete=models.PROTECT, null=True) 
+    project = models.ForeignKey(Project, 
+        related_name="Project_ResturaunGuestDayMeal", on_delete=models.PROTECT, null=True)   
     resturaunt_day_meals=models.ManyToManyField(Resturaunt_Day_Meal, through='Resturaunt_Guest_Day_Meal_junction')
     # date = models.DateField(default=datetime.now, blank=True)
     description=models.CharField(max_length=500, blank=True, null=True)
@@ -53,9 +57,9 @@ class Resturaunt_Guest_Day_Meal(models.Model):
 
 class Resturaunt_Guest_Day_Meal_Junction(models.Model):
     resturaunt_day_meal = models.ForeignKey(Resturaunt_Day_Meal, 
-        related_name="ResturauntDayMeal_ResturauntGuestDayMealJunction", on_delete=models.CASCADE)
+        related_name="ResturauntDayMeal_ResturauntGuestDayMealJunction", on_delete=models.PROTECT)
     resturaunt_guest_day_meal = models.ForeignKey(Resturaunt_Guest_Day_Meal, 
-        related_name="ResturauntGuestDayMeal_ResturauntGuestDayMealJunction", on_delete=models.CASCADE)
+        related_name="ResturauntGuestDayMeal_ResturauntGuestDayMealJunction", on_delete=models.PROTECT)
     qty = models.PositiveSmallIntegerField()
     objects = models.Manager()  
 
