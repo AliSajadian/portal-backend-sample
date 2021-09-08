@@ -23,6 +23,15 @@ class Resturaunt_MealViewSet(viewsets.ModelViewSet):
     serializer_class = Resturaunt_MealSerializer
 
 
+class Resturaunt_Day_MealViewSet(viewsets.ModelViewSet):
+    queryset = Resturaunt_Day_Meal.objects.all()
+
+    permission_classes = [
+        permissions.IsAuthenticated
+    ] 
+
+    serializer_class = Resturaunt_Day_MealSerializer
+
 class Resturaunt_Day_Meal_Current_MonthViewSet(viewsets.ModelViewSet):
     # queryset = Resturaunt_Day_Meal.objects.all()
 
@@ -122,7 +131,7 @@ class Resturaunt_Day_Meal_Current_MonthViewSet(viewsets.ModelViewSet):
             enddate += "-01" if (d < 21) else "-02" 
             enddate += "-20" if (d < 21) else "-19"             
 
-        return Resturaunt_Day_Meal.objects.filter(date__gte=startdate, date__lte=enddate)
+        return Resturaunt_Day_Meal.objects.filter(date__gte=startdate, date__lte=enddate, isActive__exact=False)
 
 class Resturaunt_Day_Meal_Next_MonthViewSet(viewsets.ModelViewSet):
     # queryset = Resturaunt_Day_Meal.objects.all()
@@ -223,20 +232,17 @@ class Resturaunt_Day_Meal_Next_MonthViewSet(viewsets.ModelViewSet):
             enddate += "-01" if (d < 21) else "-02" 
             enddate += "-20" if (d < 21) else "-19"             
             
-        return Resturaunt_Day_Meal.objects.filter(date__gte=startdate, date__lte=enddate)
+        return Resturaunt_Day_Meal.objects.filter(date__gte=startdate, date__lte=enddate, isActive__exact=False)
 
-
-class Resturaunt_Day_MealExViewSet(viewsets.ModelViewSet):
-    # queryset = Resturaunt_Day_Meal.objects.all()
-
+class Resturaunt_Day_MealExViewSet(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated] 
 
-    serializer_class = Resturaunt_Day_MealExSerializer
+    def get(self, request, *args, **kwargs):
+        date = self.kwargs['date']
+        currentdate = datetime.strptime(date, '%Y-%m-%d').date()
 
-    def get_queryset(self):
-        currentdate = date.today()
         y = currentdate.year
-        m = currentdate.month
+        m = currentdate.month-1
         d = currentdate.day
         startdate = ""
         enddate = ""
@@ -326,7 +332,121 @@ class Resturaunt_Day_MealExViewSet(viewsets.ModelViewSet):
             enddate += "-20" if (d < 21) else "-19"             
 
 
-        return Resturaunt_Day_Meal.objects.filter(date__gte=startdate, date__lte=enddate).annotate(selectedNo=Count('ResturauntDayMeal_ResturauntEmployeeDayMeal'))
+        results = Resturaunt_Day_Meal.objects.filter(date__gte=startdate, date__lte=enddate).annotate(
+            selectedNo=Count('ResturauntDayMeal_ResturauntEmployeeDayMeal')).values('id', 'date', 'totalNo', 'isActive', 'resturaunt_meal', 'selectedNo')
+        return Response(results)    
+
+class Resturaunt_Day_Meal_ActivationViewSet(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated] 
+
+    def get(self, request, *args, **kwargs):
+        date = self.kwargs['date']
+        currentdate = datetime.strptime(date, '%Y-%m-%d').date()
+
+        y = currentdate.year
+        m = currentdate.month-1
+        d = currentdate.day
+        startdate = ""
+        enddate = ""
+        if(m == 1):
+            startdate += str(y) 
+            startdate += "-01" if (d < 21) else "-02" 
+            startdate += "-21" if (d < 21) else "-20"
+            enddate += str(y) 
+            enddate += "-02" if (d < 21) else "-03" 
+            enddate += "-19" if (d < 21) else "-20"
+        elif(m == 2):
+            startdate += str(y) 
+            startdate += "-02" if (d < 20) else "-03" 
+            startdate += "-20" if (d < 20) else "-21"
+            enddate += str(y) 
+            enddate += "-03" if (d < 20) else "-04" 
+            enddate += "-20" if (d < 20) else "-20"
+        elif(m == 3):
+            startdate += str(y) 
+            startdate += "-03" if (d < 21) else "-04" 
+            startdate += "-21" if (d < 21) else "-21"
+            enddate += str(y) 
+            enddate += "-04" if (d < 21) else "-05" 
+            enddate += "-21" if (d < 21) else "-21"
+        elif(m == 4):
+            startdate += str(y) 
+            startdate += "-04" if (d < 21) else "-05" 
+            startdate += "-21" if (d < 21) else "-22"
+            enddate += str(y) 
+            enddate += "-05" if (d < 21) else "-06" 
+            enddate += "-21" if (d < 21) else "-21"            
+        elif(m == 5):
+            startdate += str(y) 
+            startdate += "-05" if (d < 22) else "-06" 
+            startdate += "-22" if (d < 22) else "-22" 
+            enddate += str(y) 
+            enddate += "-06" if (d < 22) else "-07" 
+            enddate += "-21" if (d < 22) else "-22"            
+        elif(m == 6):
+            startdate += str(y) 
+            startdate += "-06" if (d < 22) else "-07" 
+            startdate += "-22" if (d < 22) else "-23" 
+            enddate += str(y) 
+            enddate += "-07" if (d < 22) else "-08" 
+            enddate += "-22" if (d < 22) else "-22"            
+        elif(m == 7):
+            startdate += str(y) 
+            startdate += "-07" if (d < 23) else "-08" 
+            startdate += "-23" if (d < 23) else "-23" 
+            enddate += str(y) 
+            enddate += "-08" if (d < 23) else "-09" 
+            enddate += "-22" if (d < 23) else "-22"            
+        elif(m == 8):
+            startdate += str(y) 
+            startdate += "-08" if (d < 23) else "-09" 
+            startdate += "-23" if (d < 23) else "-23" 
+            enddate += str(y) 
+            enddate += "-09" if (d < 21) else "-10" 
+            enddate += "-22" if (d < 21) else "-22"
+        elif(m == 9):
+            startdate = str(y) 
+            startdate += "-09" if (d < 23) else "-10" 
+            startdate += "-23" if (d < 23) else "-23" 
+            enddate += str(y) 
+            enddate += "-10" if (d < 21) else "-11" 
+            enddate += "-22" if (d < 21) else "-21"            
+        elif(m == 10):
+            startdate += str(y) 
+            startdate += "-10" if (d < 23) else "-11" 
+            startdate += "-23" if (d < 23) else "-22" 
+            enddate += str(y) 
+            enddate += "-11" if (d < 21) else "-12" 
+            enddate += "-21" if (d < 21) else "-21"            
+        elif(m == 11):
+            startdate += str(y) 
+            startdate += "-11" if (d < 22) else "-12" 
+            startdate += "-22" if (d < 22) else "-22" 
+            enddate += str(y) 
+            enddate += "-12" if (d < 21) else "-01" 
+            enddate += "-21" if (d < 21) else "-20"
+        elif(m == 12):
+            startdate += str(y) 
+            startdate += "-12" if (d < 22) else "-01" 
+            startdate += "-22" if (d < 22) else "-21"
+            enddate += str(y) 
+            enddate += "-01" if (d < 21) else "-02" 
+            enddate += "-20" if (d < 21) else "-19"             
+
+
+        results = Resturaunt_Day_Meal.objects.filter(date__gte=startdate, date__lte=enddate).values('id')
+
+        objs = []
+        for dm in results:
+            obj = Resturaunt_Day_Meal.objects.get(id=dm['id'])
+            obj.isActive = False
+            objs.append(obj)
+        Resturaunt_Day_Meal.objects.bulk_update(objs, ['isActive'])     
+
+        return Response(
+            Resturaunt_Day_Meal.objects.filter(date__gte=startdate, date__lte=enddate).annotate(
+                selectedNo=Count('ResturauntDayMeal_ResturauntEmployeeDayMeal')).values('id', 'date', 'totalNo', 'isActive', 'resturaunt_meal', 'selectedNo')
+        )  
 
 
 class Resturaunt_Employee_Day_MealViewSet(viewsets.ModelViewSet):
@@ -579,7 +699,7 @@ class Resturaunt_Save_Employee_Meal_Day(generics.GenericAPIView):
             personelMealDays = data["personelMealDays"]
             editMood = data["editMood"]
 
-            emp = 0
+            emp = personelMealDays[0]['employee']
 
             currentdate = date.today()
             y = currentdate.year
@@ -673,8 +793,6 @@ class Resturaunt_Save_Employee_Meal_Day(generics.GenericAPIView):
                 enddate += "-20" if (d < 21) else "-19"             
 
             if(editMood):
-                employee_id = emp
-
                 result = Resturaunt_Employee_Day_Meal.objects.filter(employee=employee_id, 
                     resturaunt_day_meal__date__gte=startdate, resturaunt_day_meal__date__lte=enddate)
                     
@@ -683,7 +801,6 @@ class Resturaunt_Save_Employee_Meal_Day(generics.GenericAPIView):
                     for pmd in personelMealDays:
                         obj = Resturaunt_Employee_Day_Meal(employee_id=pmd['employee'], resturaunt_day_meal_id=pmd['resturaunt_day_meal'])
                         objs.append(obj)
-                        emp = pmd['employee']
                     Resturaunt_Employee_Day_Meal.objects.bulk_create(objs)   
 
                 return Response(Resturaunt_Employee_Day_Meal.objects.filter(employee=employee_id, 
@@ -695,10 +812,8 @@ class Resturaunt_Save_Employee_Meal_Day(generics.GenericAPIView):
                     obj = Resturaunt_Employee_Day_Meal.objects.get(id=pmd['id'])
                     obj.resturaunt_day_meal_id = pmd['resturaunt_day_meal']
                     objs.append(obj)
-                    emp = pmd['employee']
                 Resturaunt_Employee_Day_Meal.objects.bulk_update(objs, ['resturaunt_day_meal'])     
 
-                employee_id = emp
                 return Response(Resturaunt_Employee_Day_Meal.objects.filter(employee=employee_id, 
                     resturaunt_day_meal__date__gte=startdate, resturaunt_day_meal__date__lte=enddate).values('id', 'employee', 'resturaunt_day_meal'))                         
 
@@ -1183,22 +1298,23 @@ class Resturaunt_CurrentMonthSelectedMealsViewSet(generics.GenericAPIView):
             ).order_by('-resturaunt_day_meal__date')[:31].values('resturaunt_day_meal__date', 
             'resturaunt_day_meal__resturaunt_meal__name')[::-1])
 
-class Resturaunt_AsftTodayMealsStatisticsViewSet(generics.GenericAPIView):
+class Resturaunt_AsftDayMealsStatisticsViewSet(generics.GenericAPIView):
     permission_classes = [
         permissions.IsAuthenticated
     ] 
 
     def get(self, request, *args, **kwargs):
-        currentdate = date.today()
-        results1 = Resturaunt_Employee_Day_Meal.objects.filter(resturaunt_day_meal__date__exact=currentdate).exclude(
-                employee__department__name__exact=None).values('employee__department').annotate(
+        date = self.kwargs['date']
+        results1 = Resturaunt_Employee_Day_Meal.objects.filter(resturaunt_day_meal__date__exact=date, 
+                employee__department__company__name__exact='آسفالت طوس').exclude(
+                employee__department__exact=None).values('employee__department').annotate(
                 section=F('employee__department__name'), 
                 meal_name=F('resturaunt_day_meal__resturaunt_meal__name'), 
                 meal_no=Count('resturaunt_day_meal__resturaunt_meal__name'),
                 section_type=Value(1, output_field=SmallIntegerField())).values('section_type', 'section', 'meal_name', 'meal_no')
 
-        results2 = Resturaunt_Employee_Day_Meal.objects.filter(resturaunt_day_meal__date__exact=currentdate).exclude(
-                employee__project__name__exact=None).values('employee__project').annotate(
+        results2 = Resturaunt_Employee_Day_Meal.objects.filter(resturaunt_day_meal__date__exact=date).exclude(
+                employee__project__exact=None).values('employee__project').annotate(
                 section=F('employee__project__name'), 
                 meal_name=F('resturaunt_day_meal__resturaunt_meal__name'), 
                 meal_no=Count('resturaunt_day_meal__resturaunt_meal__name'),
@@ -1207,21 +1323,23 @@ class Resturaunt_AsftTodayMealsStatisticsViewSet(generics.GenericAPIView):
         results = results1.union(results2).order_by('section_type', 'section', 'meal_name')
         return Response(results)
 
-class Resturaunt_CompanysTodayMealsStatisticsViewSet(generics.GenericAPIView):
+class Resturaunt_CompanysDayMealsStatisticsViewSet(generics.GenericAPIView):
     permission_classes = [
         permissions.IsAuthenticated
     ] 
 
     def get(self, request, *args, **kwargs):
-        currentdate = date.today()
-        results = Resturaunt_Employee_Day_Meal.objects.filter(resturaunt_day_meal__date__exact=currentdate).exclude(
-                employee__department__company__name__exact='آسفالت طوس').values('employee__department').order_by('employee__department__name').annotate(
-                section=F('employee__department__name'), 
-                meal_name=F('resturaunt_day_meal__resturaunt_meal__name'), 
-                meal_no=Count('resturaunt_day_meal__resturaunt_meal__name')).values('section', 'meal_name', 'meal_no')
+        # currentdate = date.today()
+        date = self.kwargs['date']
+        results = Resturaunt_Employee_Day_Meal.objects.filter(resturaunt_day_meal__date__exact=date).exclude(
+        employee__department__company__name__exact='آسفالت طوس').exclude(employee__department__exact=None).values(
+            'employee__department').order_by('employee__department__name').annotate(
+        section=F('employee__department__name'), 
+        meal_name=F('resturaunt_day_meal__resturaunt_meal__name'), 
+        meal_no=Count('resturaunt_day_meal__resturaunt_meal__name')).values('section', 'meal_name', 'meal_no')
         return Response(results)        
 
-class Resturaunt_ContractorDailyMealsStatisticsViewSet(generics.GenericAPIView):
+class Resturaunt_ContractorMonthlyMealsStatisticsViewSet(generics.GenericAPIView):
     permission_classes = [
         permissions.IsAuthenticated
     ] 
