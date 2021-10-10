@@ -5,10 +5,13 @@ from .views import Resturaunt_MealViewSet, Resturaunt_Day_Meal_Current_MonthView
         Resturaunt_Day_MealExViewSet, Resturaunt_Day_Meal_ActivationViewSet, Resturaunt_Employee_Day_MealViewSet, Resturaunt_Employee_Day_Meal_Current_MonthViewSet, \
         Resturaunt_Employee_OneDay_MealViewSet, Resturaunt_Fish_MealViewSet, Resturaunt_Department_Day_MealsAPI, Resturaunt_Project_Day_MealsAPI, \
         Resturaunt_Served_MealViewSet, Restrant_Set_ServedViewSet , Resturaunt_Edit_Guest_Day_MealsViewSet, Resturaunt_Employee_Day_Meal_Next_MonthViewSet, \
-        Resturaunt_Guest_Day_MealViewSet, Resturaunt_Edit_Guest_Day_MealsJunction, Resturaunt_DepartmentsMealsDailyListViewSet, \
-        Resturaunt_ProjectsMealsDailyListViewSet, Resturaunt_Department_Guest_Day_MealsViewSet, Resturaunt_Project_Guest_Day_MealsViewSet, \
+        Resturaunt_Guest_Day_MealViewSet, Resturaunt_Edit_Guest_Day_MealsJunction, Resturaunt_DepartmentsMealsDailyListViewSet, Resturaunt_ProjectsMealsDailyListViewSet, \
+        Resturaunt_SectionsMealsDailyListViewSet, Resturaunt_Department_Guest_Day_MealsViewSet, Resturaunt_Project_Guest_Day_MealsViewSet, Resturaunt_Section_NameViewSet, \
         Resturaunt_CurrentMonthSelectedMealsViewSet, Resturaunt_AsftDayMealsStatisticsViewSet, Resturaunt_CompanysDayMealsStatisticsViewSet, \
-        Resturaunt_ContractorMonthlyMealsStatisticsViewSet, Resturaunt_Save_Employee_Meal_Day
+        Resturaunt_SectionDayMealsStatisticsViewSet, Resturaunt_DepartmentDayMealsStatisticsViewSet, Resturaunt_ProjectDayMealsStatisticsViewSet, \
+        Resturaunt_MealsStatisticsDatesListViewSet, Resturaunt_ContractorMonthlyMealsStatisticsViewSet, Resturaunt_Save_Current_Month_Employee_Meal_Day, \
+        Resturaunt_Save_Next_Month_Employee_Meal_Day, Resturaunt_Contractor_Daily_Section_Meals_StatisticsViewAPI, Resturaunt_Day_Meals_NamesViewAPI, \
+        Resturaunt_Day_Meals_TotalNoViewAPI, Resturaunt_Personel_Didnot_Select_Next_Month_MealsViewAPI, Resturaunt_Section_NamesViewAPI
 
 
 router = routers.DefaultRouter()
@@ -44,12 +47,24 @@ urlpatterns = [
 
     path('api/departmentsmealsdailylist/<int:departmentId>/', Resturaunt_DepartmentsMealsDailyListViewSet.as_view(), name='departmentsmealsdailylist/<departmentId>/'),
     path('api/projectsmealsdailylist/<int:projectId>/', Resturaunt_ProjectsMealsDailyListViewSet.as_view(), name='projectsmealsdailylist/<projectId>/'),
+    path('api/sectionsmealsdailylist/<int:employeeId>/', Resturaunt_SectionsMealsDailyListViewSet.as_view(), name='sectionsmealsdailylist/<employeeId>/'),
+    path('api/sectionname/<int:employeeId>/', Resturaunt_Section_NameViewSet.as_view(), name='sectionname/<employeeId>/'),
 
     path('api/currentmonthselectedmeals/<int:employeeId>/', Resturaunt_CurrentMonthSelectedMealsViewSet.as_view(), name='currentmonthselectedmeals/<employeeId>/'),    
     re_path(r'api/asftdaymealsstatistics/(?P<date>\d{4}-\d{2}-\d{2})$', Resturaunt_AsftDayMealsStatisticsViewSet.as_view()),    
     re_path(r'^api/companysdaymealsstatistics/(?P<date>\d{4}-\d{2}-\d{2})$', Resturaunt_CompanysDayMealsStatisticsViewSet.as_view()), 
+    path('api/sectiondaymealsstatistics/<int:employeeId>/', Resturaunt_SectionDayMealsStatisticsViewSet.as_view(), name='sectiondaymealsstatistics/<employeeId>/'),    
+    path('api/departmentdaymealsstatistics/<int:departmentId>/', Resturaunt_DepartmentDayMealsStatisticsViewSet.as_view(), name='departmentdaymealsstatistics/<departmentId>/'),    
+    path('api/projectdaymealsstatistics/<int:projectId>/', Resturaunt_ProjectDayMealsStatisticsViewSet.as_view(), name='projectdaymealsstatistics/<projectId>/'),    
     path('api/contractormonthlymealsstatistics/', Resturaunt_ContractorMonthlyMealsStatisticsViewSet.as_view(), name='contractormonthlymealsstatistics/'),   
-    path('api/savebulkpersonelmealdays', Resturaunt_Save_Employee_Meal_Day.as_view(), name='savebulkpersonelmealdays')
+    path('api/mealsstatisticsdateslist/', Resturaunt_MealsStatisticsDatesListViewSet.as_view(), name='mealsstatisticsdateslist/'),
+    path('api/savebulkcurrentmonthpersonelmealdays', Resturaunt_Save_Current_Month_Employee_Meal_Day.as_view(), name='savebulkcurrentmonthpersonelmealdays'),
+    path('api/savebulknextmonthpersonelmealdays', Resturaunt_Save_Next_Month_Employee_Meal_Day.as_view(), name='savebulknextmonthpersonelmealdays'),
+    path('api/contractorsectionsdailymealsstatistics/', Resturaunt_Contractor_Daily_Section_Meals_StatisticsViewAPI.as_view(), name='api/contractorsectionsdailymealsstatistics/'),
+    path('api/todaymealsnames/', Resturaunt_Day_Meals_NamesViewAPI.as_view(), name='api/todaymealsnames/'),
+    path('api/todaymealstotalno/', Resturaunt_Day_Meals_TotalNoViewAPI.as_view(), name='api/todaymealstotalno/'),
+    path('api/personelwhodidnotselectnextmonthmeals/', Resturaunt_Personel_Didnot_Select_Next_Month_MealsViewAPI.as_view(), name='api/personelwhodidnotselectnextmonthmeals/'),
+    path('api/sectionnames/', Resturaunt_Section_NamesViewAPI.as_view(), name='api/sectionnames'),
 ]
 
 urlpatterns += router.urls

@@ -1,7 +1,10 @@
 from rest_framework import routers
 from .views import CompanyViewSet, DepartmentViewSet, ProjectViewSet, JobPositionViewSet, EmployeeViewSet, EmployeeCodeViewSet, \
     DoctorEmployeeViewSet, SurveyTypeViewSet, DoctorTypeViewSet, UsersViewSet, GroupViewSet, UserGroupsViewSet, PermissionViewSet, \
-        ContentTypeViewSet, UserPermissionsViewSet, GroupPermissionsViewSet, NotificationViewSet, FilteredNotificationViewSet
+        ContentTypeViewSet, UserPermissionsViewSet, GroupPermissionsViewSet, NotificationViewSet, FilteredNotificationViewSet, \
+            BaseInfo_Get_DepartmentsExViewAPI, EmployeeExViewSet
+from django.urls import path
+
 
 router = routers.DefaultRouter()
 router.register('api/companies', CompanyViewSet, 'companies')
@@ -9,6 +12,7 @@ router.register('api/departments', DepartmentViewSet, 'departments')
 router.register('api/projects', ProjectViewSet, 'projects')
 router.register('api/jobPositions', JobPositionViewSet, 'jobPositions')
 router.register('api/employees', EmployeeViewSet, 'employees')
+router.register('api/employeesex', EmployeeExViewSet, 'employeesex')
 router.register('api/employeecodes', EmployeeCodeViewSet, 'employeecodes')
 router.register('api/doctoremployees', DoctorEmployeeViewSet, 'doctoremployees')
 router.register('api/surveyTypes', SurveyTypeViewSet, 'surveyTypes')
@@ -24,5 +28,7 @@ router.register('api/grouppermissions', GroupPermissionsViewSet, 'usergrouppermi
 
 router.register('api/notifications', NotificationViewSet, 'notifications')
 router.register('api/filterednotifications/(?P<id>\d+)', FilteredNotificationViewSet, 'filterednotifications')
-
-urlpatterns = router.urls
+urlpatterns = [
+    path('api/departmentsex/', BaseInfo_Get_DepartmentsExViewAPI.as_view(), name='api/sectionnamesex'),
+]
+urlpatterns += router.urls

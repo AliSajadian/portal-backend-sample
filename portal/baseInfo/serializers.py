@@ -30,6 +30,17 @@ class EmployeeSerializer(serializers.ModelSerializer):
         model = Employee
         fields = '__all__'
 
+class EmployeeExSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', default='')
+    department_name = serializers.CharField(source='department.name', default='')
+    project_name = serializers.CharField(source='project.name', default='')    
+    jobPosition_name = serializers.CharField(source='jobPosition.name', default='')    
+    
+    class Meta:
+        model = Employee
+        fields = ('id', 'personel_code', 'username', 'first_name', 'last_name', 'gender', 'picture', 
+                'phone', 'email', 'is_active', 'department_name', 'project_name', 'jobPosition_name')    
+
 class EmployeeCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee

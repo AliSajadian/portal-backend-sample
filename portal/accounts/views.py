@@ -252,11 +252,11 @@ class LoginAPI(generics.GenericAPIView):
                         usergroups.append(group.id)
                 for permission in group.permissions.all():
                     if(permission not in usergrouppermissions):
-                        usergrouppermissions.append(permission.id)
+                        usergrouppermissions.append(permission.codename)
             
             for permission in user.user_permissions.all():
                 if(permission not in usergrouppermissions):
-                    usergrouppermissions.append(permission.id)
+                    usergrouppermissions.append(permission.codename)
 
             if((1 not in usergroups) and (2 not in usergroups) and (usergroups == None or usergroups == [] or usergrouppermissions == None or usergrouppermissions == [])):
                 # "دسترسی به سیستم به شما اختصاص داده نشده است، لطفا با راهبر سامانه تماس بگیرید."
@@ -300,11 +300,11 @@ class LoginAPI(generics.GenericAPIView):
                         usergroups.append(group.id)
                 for permission in group.permissions.all():
                     if(permission not in usergrouppermissions):
-                        usergrouppermissions.append(permission.id)
+                        usergrouppermissions.append(permission.codename)
             
             for permission in user.user_permissions.all():
                 if(permission not in usergrouppermissions):
-                    usergrouppermissions.append(permission.id)
+                    usergrouppermissions.append(permission.codename)
 
             if((1 not in usergroups) and (2 not in usergroups) and (usergroups == None or usergroups == [] or usergrouppermissions == None or usergrouppermissions == [])):
                 # "دسترسی به سیستم به شما اختصاص داده نشده است، لطفا با راهبر سامانه تماس بگیرید."

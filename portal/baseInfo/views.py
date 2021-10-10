@@ -1,12 +1,16 @@
-from rest_framework import viewsets, permissions
+from rest_framework import generics, viewsets, permissions
 from datetime import datetime, date
-from django.db.models import Q
+from django.db.models import Q, F
+from rest_framework.response import Response 
+
+# from django.db.models import Count, Q, F, Window, Value, IntegerField
 
 from django.contrib.auth.models import User, Group, Permission, ContentType
 from baseInfo.models import Company, Department, Project, JobPosition, Employee, SurveyType, DoctorType, Notification
 from .serializers import CompanySerializer, DepartmentSerializer, ProjectSerializer, JobPositionSerializer, EmployeeSerializer, \
     EmployeeCodeSerializer, UsersSerializer, SurveyTypeSerializer, DoctorTypeSerializer, GroupSerializer, UserGroupsSerializer, \
-        PermissionSerializer, UserPermissionsSerializer, GroupPermissionsSerializer, ContentTypeSerializer, NotificationSerializer
+        PermissionSerializer, UserPermissionsSerializer, GroupPermissionsSerializer, ContentTypeSerializer, NotificationSerializer, \
+            EmployeeExSerializer
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -26,6 +30,16 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     ] 
 
     serializer_class = DepartmentSerializer
+
+class BaseInfo_Get_DepartmentsExViewAPI(generics.GenericAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated
+    ] 
+
+    def get(self, request, *args, **kwargs):
+        return Response(Department.objects.all().annotate(
+            company_name=F('company__name')
+        ).values('id', 'name', 'company', 'company_name'))
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -52,6 +66,14 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated
     ] 
     serializer_class = EmployeeSerializer
+
+class EmployeeExViewSet(viewsets.ModelViewSet):
+    queryset = Employee.objects.all()
+
+    permission_classes = [
+        permissions.IsAuthenticated
+    ] 
+    serializer_class = EmployeeExSerializer   
 
 class EmployeeCodeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
