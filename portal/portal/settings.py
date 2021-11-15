@@ -25,8 +25,8 @@ SECRET_KEY = 'jn7@^yaj(m33%&4)r(+b%k*g(f)2bpb3a2ur_*f%dlv&yborj8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['172,20,22,184'], '192.168.43.108', '172,20,22,184' '172.20.20.45', '127.0.0.1', 'localhost'
-ALLOWED_HOSTS = ['127.0.0.1', 'portalapi.asft.co']
+# ALLOWED_HOSTS = '*'
+ALLOWED_HOSTS = ['127.0.0.1']
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
@@ -105,14 +105,13 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
-        # '192.168.43.108', '172,20,22,184'
 
     'default': {
         'ENGINE': 'sql_server.pyodbc',
-        'NAME': 'DbAsftPortal',
-        'HOST': '172.20.20.45',
+        'NAME': 'DbTtestl',
+        'HOST': '177.77.77.77',
         'USER': 'sa',
-        'PASSWORD': 'aSj#14776$10036%mM&',
+        'PASSWORD': ''*******************,
 
         'OPTIONS': {
             'driver': 'ODBC Driver 13 for SQL Server',
