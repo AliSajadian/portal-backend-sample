@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,10 +21,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'jn7@^yaj(m33%&4)r(+b%k*g(f)2bpb3a2ur_*f%dlv&yborj8'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG')
 
 # ALLOWED_HOSTS = '*'
 ALLOWED_HOSTS = ['127.0.0.1']
@@ -108,10 +109,10 @@ DATABASES = {
 
     'default': {
         'ENGINE': 'sql_server.pyodbc',
-        'NAME': 'DbTtestl',
-        'HOST': '177.77.77.77',
-        'USER': 'sa',
-        'PASSWORD': ''*******************,
+        'NAME': config('DB_NAME'),
+        'HOST': config('DB_HOST'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
 
         'OPTIONS': {
             'driver': 'ODBC Driver 13 for SQL Server',
